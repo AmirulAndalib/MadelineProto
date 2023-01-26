@@ -55,7 +55,7 @@ $logger->logger('Creating annotations...', Logger::NOTICE);
 $doc = new \danog\MadelineProto\AnnotationsBuilder(
     $logger,
     $docs[0],
-    dirname(__FILE__).'/../src/danog/MadelineProto/InternalDoc.php',
+    dirname(__FILE__).'/../src/InternalDoc.php',
     [
         'API' => API::class,
         'APIFactory' => APIFactory::class,

@@ -20,21 +20,16 @@ declare(strict_types=1);
 
 namespace danog\MadelineProto\Ipc;
 
-use Amp\Future;
 use Amp\Ipc\Sync\ChannelledSocket;
 use danog\MadelineProto\Exception;
 use danog\MadelineProto\FileCallbackInterface;
 use danog\MadelineProto\Logger;
 use danog\MadelineProto\MTProtoTools\FilesLogic;
 use danog\MadelineProto\SessionPaths;
-use danog\MadelineProto\Tools;
 use danog\MadelineProto\Wrappers\Start;
 use danog\MadelineProto\Wrappers\Templates;
-use Generator;
 use Revolt\EventLoop;
 use Throwable;
-
-use function Amp\async;
 
 /**
  * IPC client.
@@ -75,24 +70,6 @@ final class Client extends ClientAbstract
         $this->session = $session;
         self::$instances[$session->getSessionDirectoryPath()] = $this;
         EventLoop::queue($this->loopInternal(...));
-    }
-    /**
-     * Run the provided async callable.
-     *
-     * @deprecated Not needed anymore since MadelineProto v8 and amp v3
-     *
-     * @param callable $callback Async callable to run
-     */
-    public function loop(callable $callback)
-    {
-        $r = $callback();
-        if ($r instanceof Generator) {
-            $r = Tools::consumeGenerator($r);
-        }
-        if ($r instanceof Future) {
-            $r = $r->await();
-        }
-        return $r;
     }
     /**
      * Unreference.

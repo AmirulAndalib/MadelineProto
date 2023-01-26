@@ -15,7 +15,7 @@ if (!\defined('MADELINE_ALLOW_COMPOSER') && \class_exists(\Composer\Autoload\Cla
 class Installer
 {
     const RELEASE_TEMPLATE = 'https://phar.madelineproto.xyz/release%s?v=new';
-    const PHAR_TEMPLATE = 'https://github.com/danog/MadelineProto/releases/latest/download/madeline%s.phar?v=%s';
+    const PHAR_TEMPLATE = 'https://github.com/releases/latest/download/madeline%s.phar?v=%s';
 
     /**
      * Phar lock instance.
@@ -171,7 +171,7 @@ class Installer
         \flock(self::$lock, LOCK_SH);
         $result = require_once $phar;
         if (\defined('MADELINE_WORKER_TYPE') && \constant('MADELINE_WORKER_TYPE') === 'madeline-ipc') {
-            require_once "phar://$phar/vendor/danog/madelineproto/src/danog/MadelineProto/Ipc/Runner/entry.php";
+            require_once "phar://$phar/vendor/danog/madelineproto/src/Ipc/Runner/entry.php";
         }
         return $result;
     }

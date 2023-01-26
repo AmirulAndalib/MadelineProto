@@ -22,7 +22,6 @@ namespace danog\MadelineProto\MTProtoTools;
 
 use Amp\DeferredFuture;
 use Amp\File\Driver\BlockingFile;
-use Amp\Future;
 use Amp\Http\Client\Request;
 use danog\MadelineProto\Exception;
 use danog\MadelineProto\FileCallbackInterface;
@@ -34,7 +33,6 @@ use danog\MadelineProto\RPCErrorException;
 use danog\MadelineProto\SecurityException;
 use danog\MadelineProto\Settings;
 use danog\MadelineProto\Tools;
-use Generator;
 use Revolt\EventLoop;
 use Throwable;
 
@@ -126,12 +124,7 @@ trait Files
             };
         } else {
             $cb = function (float $percent, float $speed, float $time) use ($cb): void {
-                EventLoop::queue(function () use ($percent, $speed, $time, $cb): void {
-                    $r = $cb($percent, $speed, $time);
-                    if ($r instanceof Generator) {
-                        Tools::consumeGenerator($r);
-                    }
-                });
+                EventLoop::queue($cb, $percent, $speed, $time);
             };
         }
         $datacenter = $this->authorized_dc;
@@ -168,12 +161,6 @@ trait Files
         };
         $callable = static function (int $part_num) use ($file_id, $part_total_num, $part_size, $callable, $ige) {
             $bytes = $callable($part_num * $part_size, $part_size);
-            if ($bytes instanceof Generator) {
-                $bytes = Tools::consumeGenerator($bytes);
-            }
-            if ($bytes instanceof Future) {
-                $bytes = $bytes->await();
-            }
             if ($ige) {
                 $bytes = $ige->encrypt(\str_pad($bytes, $part_size, \chr(0)));
             }
@@ -842,12 +829,7 @@ trait Files
             };
         } else {
             $cb = function (float $percent, float $speed, float $time) use ($cb): void {
-                EventLoop::queue(function () use ($percent, $speed, $time, $cb): void {
-                    $r = $cb($percent, $speed, $time);
-                    if ($r instanceof Generator) {
-                        Tools::consumeGenerator($r);
-                    }
-                });
+                EventLoop::queue($cb, $percent, $speed, $time);
             };
         }
         if ($end === -1 && isset($messageMedia['size'])) {
@@ -1057,12 +1039,6 @@ trait Files
             }
             $len = \strlen($res['bytes']);
             $res = $callable($res['bytes'], $offset['offset'] + $offset['part_start_at']);
-            if ($res instanceof Generator) {
-                $res = Tools::consumeGenerator($res);
-            }
-            if ($res instanceof Future) {
-                $res = $res->await();
-            }
             $cb();
             return $len;
         } while (true);

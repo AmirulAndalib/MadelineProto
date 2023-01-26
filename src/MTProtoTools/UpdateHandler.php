@@ -36,10 +36,8 @@ use danog\MadelineProto\RPCErrorException;
 use danog\MadelineProto\Settings;
 use danog\MadelineProto\TL\TL;
 use danog\MadelineProto\TL\Types\Button;
-use danog\MadelineProto\Tools;
 use danog\MadelineProto\UpdateHandlerType;
 use danog\MadelineProto\VoIP;
-use Generator;
 use Revolt\EventLoop;
 use Throwable;
 use Webmozart\Assert\Assert;
@@ -106,10 +104,7 @@ trait UpdateHandler
             return;
         }
         $this->event_handler_instance->waitForStartInternal();
-        $r = $this->eventHandlerMethods[$update['_']]($update);
-        if ($r instanceof Generator) {
-            Tools::consumeGenerator($r);
-        }
+        $this->eventHandlerMethods[$update['_']]($update);
     }
 
     /**

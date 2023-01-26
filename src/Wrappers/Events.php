@@ -24,7 +24,6 @@ use __PHP_Incomplete_Class;
 use danog\MadelineProto\EventHandler;
 use danog\MadelineProto\Exception;
 use danog\MadelineProto\Settings;
-use danog\MadelineProto\Tools;
 use danog\MadelineProto\UpdateHandlerType;
 
 /**
@@ -96,8 +95,8 @@ trait Events
                 }
             }
         }
-        $this->setReportPeers(Tools::call($this->event_handler_instance->getReportPeers())->await());
-        Tools::call($this->event_handler_instance->startInternal())->await();
+        $this->setReportPeers($this->event_handler_instance->getReportPeers());
+        $this->event_handler_instance->startInternal();
 
         $this->updateHandlerType = UpdateHandlerType::EVENT_HANDLER;
         \array_map($this->handleUpdate(...), $this->updates);
