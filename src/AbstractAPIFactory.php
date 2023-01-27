@@ -57,14 +57,6 @@ abstract class AbstractAPIFactory
         }
     }
     /**
-     * Enable or disable async.
-     *
-     * @deprecated Starting from MadelineProto v8, async is always enabled. This function does nothing.
-     */
-    public function async(bool $async): void
-    {
-    }
-    /**
      * Call async wrapper function.
      *
      * @param string $name      Method name
