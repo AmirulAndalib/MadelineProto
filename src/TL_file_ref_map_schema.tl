@@ -1,5 +1,11 @@
+boolFalse#bc799737 = Bool;
+boolTrue#997275b5 = Bool;
+
 // Root
-fileReferenceOrigins#63adca68 db_schema:string db_schema_json:string origins:Vector<Origin> skipped:Vector<SkippedOrigin> actions:Vector<Action> = FileReferenceOrigins;
+fileReferenceOrigins#ed01a4f1 db_schema:string db_schema_json:string locations:Vector<Location> origins:Vector<Origin> skipped:Vector<SkippedOrigin> actions:Vector<Action> = FileReferenceOrigins;
+
+locationIncoming#e18770f4 predicate:string stored_constructor:string = Location;
+locationOutgoing#e7740ae0 predicate:string stored_constructor:string = Location;
 
 origin#b62177bf flags:# predicate:string is_constructor:flags.0?true stored_constructor:string stored_params:Vector<FieldExtractor> skipped_flags:Vector<string> needs_parent:flags.3?string parent_is_constructor:flags.4?true = origin;
 

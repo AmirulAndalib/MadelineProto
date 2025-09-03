@@ -38,6 +38,7 @@ use danog\MadelineProto\Logger;
 use danog\MadelineProto\Magic;
 use danog\MadelineProto\Settings\TLSchema;
 use danog\MadelineProto\TL\TL;
+use Webmozart\Assert\Assert;
 
 final class FileRefGenerator
 {
@@ -446,8 +447,56 @@ final class FileRefGenerator
 
         $validated = [];
 
+        $outgoingCons = [
+            'inputPhoto' => ['fileIdPhoto', 'id', 'file_reference'],
+            'inputDocument' => ['fileIdDocument', 'id', 'file_reference'],
+            'inputDocumentFileLocation' => ['fileIdDocument', 'id', 'file_reference'],
+            'inputPhotoFileLocation' => ['fileIdPhoto', 'id', 'file_reference'],
+
+            // Legacy
+            'inputFileLocation' => false,
+            'inputPhotoLegacyFileLocation' => false,
+        ];
+        $incomingCons = [
+            'document' => ['fileIdDocument', 'id', 'file_reference'],
+            'photo' => ['fileIdPhoto', 'id', 'file_reference'],
+        ];
+        foreach ($TL->tl->getConstructors()->by_id as $constructor) {
+            foreach ($constructor['params'] as $param) {
+                if ($param['name'] === 'file_reference') {
+                    if (isset($outgoingCons[$constructor['predicate']])) {
+                        if ($outgoingCons[$constructor['predicate']] === false) {
+                            continue 2;
+                        }
+                        [, $id, $fileref] = $outgoingCons[$constructor['predicate']];
+                        $params = array_column($constructor['params'], null, 'name');
+                        Assert::keyExists($params, $id);
+                        Assert::keyExists($params, $fileref);
+                        Assert::eq($params[$id]['type'], 'long');
+                        Assert::eq($params[$fileref]['type'], 'bytes');
+                        Assert::keyNotExists($params[$id], 'pow');
+                        Assert::keyNotExists($params[$fileref], 'pow');
+                        continue 2;
+                    }
+                    if (isset($incomingCons[$constructor['predicate']])) {
+                        [, $id, $fileref] = $incomingCons[$constructor['predicate']];
+                        $params = array_column($constructor['params'], null, 'name');
+                        Assert::keyExists($params, $id);
+                        Assert::keyExists($params, $fileref);
+                        Assert::eq($params[$id]['type'], 'long');
+                        Assert::eq($params[$fileref]['type'], 'bytes');
+                        Assert::keyNotExists($params[$id], 'pow');
+                        Assert::keyNotExists($params[$fileref], 'pow');
+                        continue 2;
+                    }
+                    throw new AssertionError("Have file_reference for {$constructor['predicate']} but not used");
+                }
+            }
+        }
+
         $tmp = new Ast(allowUnpacking: true, outputSchema: $pre);
-        foreach (['Document' => 'document', 'Photo' => 'photo'] as $type => $constructor) {
+        foreach ($incomingCons as $constructor => $_) {
+            $type = ucfirst($constructor);
             $stack = [[$constructor, 'file_reference']];
             $stackTypes = [$type => 1];
             $recurse(
@@ -541,7 +590,7 @@ final class FileRefGenerator
             }
         }
 
-        $output->finalize($outputFile, $outputFileJson);
+        $output->finalize(array_filter($outgoingCons), $incomingCons, $outputFile, $outputFileJson);
 
         echo("OK $layer!\n".PHP_EOL);
     }
